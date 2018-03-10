@@ -6,7 +6,7 @@ import initializer    from '../action_reducers';
 export default function configureStore(initialState) {
     let { middleware, reducer } = actionReducer(initializer);
     return createStore(
-        rootReducer,
+        reducer,
         initialState,
         applyMiddleware(
             middleware,
