@@ -1,11 +1,14 @@
-export default function(addActionReducers) {
+export default function(...addActionReducers) {
     let ar = new ActionReducers();
-    addActionReducers(ar);
-    return () => next => (name, ...data) => {
-        if(!(name in ar.actions)) throw `Action '${name}' not found.`;
-        let resp = ar.actions[name](...data);
-        if(typeof resp == null) return;
-        return next(resp)
+    for(let func of addActionReducers) func(ar);
+    return {
+        middleware: () => next => (name, ...data) => {
+            if(!(name in ar.actions)) throw `Action '${name}' not found.`;
+            let resp = ar.actions[name](...data);
+            if(typeof resp == null) return;
+            return next(resp)
+        },
+        reducer: ar.reducer
     }
 }
 
@@ -32,7 +35,7 @@ class ActionReducers {
         if(!(action.type in this.reducers)) return state;
         let draft = clone(state);
         let ret = this.reducers[action.type](draft, action);
-        if(typeof ret == null) return draft;
+        if(ret == null) return draft;
         return ret
     }
 }
