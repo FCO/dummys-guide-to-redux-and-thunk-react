@@ -11,13 +11,13 @@ export default actionReducers => {
                 dispatch("itemsHasErrored", true);
             }
 
-            dispatch("itemsIsLoading", false);
-
             let items = await response.json();
             dispatch("itemsFetchDataSuccess", items)
+
+            dispatch("itemsIsLoading", false);
         };
     });
-    actionReducers.createReducer("itemsHasErrored",       (draft, action) => action.hasErrored);
-    actionReducers.createReducer("itemsIsLoading",        (draft, action) => action.isLoading);
-    actionReducers.createReducer("itemsFetchDataSuccess", (draft, action) => action.items);
+    actionReducers.createReducer("itemsHasErrored",       (draft, action) => {draft.hasErrored = action.hasErrored});
+    actionReducers.createReducer("itemsIsLoading",        (draft, action) => {draft.isLoading  = action.isLoading});
+    actionReducers.createReducer("itemsFetchDataSuccess", (draft, action) => {draft.items      = action.items});
 }

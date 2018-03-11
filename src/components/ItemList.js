@@ -27,12 +27,12 @@ class ItemList extends Component {
     }
 }
 
-const mapStateToProps = state => {
-    console.log(state);
+const mapStateToProps = (state = {}) => {
+    console.log("state", state);
     return {
-        items: state.items,
-        hasErrored: state.itemsHasErrored,
-        isLoading: state.itemsIsLoading
+        items:      state.items,
+        hasErrored: state.hasErrored,
+        isLoading:  state.isLoading
     };
 };
 
