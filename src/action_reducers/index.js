@@ -17,7 +17,7 @@ export default actionReducers => {
             dispatch("itemsIsLoading", false);
         };
     });
-    actionReducers.createReducer("itemsHasErrored",       (draft, action) => {draft.hasErrored = action.hasErrored});
-    actionReducers.createReducer("itemsIsLoading",        (draft, action) => {draft.isLoading  = action.isLoading});
-    actionReducers.createReducer("itemsFetchDataSuccess", (draft, action) => {draft.items      = action.items});
+    actionReducers.addCombinedReducer("itemsHasErrored",        "hasErrored", action => action.hasErrored);
+    actionReducers.addCombinedReducer("itemsIsLoading",         "isLoading",  action => action.isLoading,   false);
+    actionReducers.addCombinedReducer("itemsFetchDataSuccess",  "items",      action => action.items,       []);
 }

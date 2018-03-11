@@ -5,7 +5,7 @@ import configureStore from './store/configureStore';
 
 import ItemList from './components/ItemList';
 
-const store = configureStore({});
+const store = configureStore();
 
 render(
     <Provider store={store}>

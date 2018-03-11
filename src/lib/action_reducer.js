@@ -20,14 +20,18 @@ export default function(...addActionReducers) {
 
 class ActionReducers {
     constructor() {
-        this.reducers = {}
-        this.actions  = {}
+        this.combinedReducers   = [];
+        this.reducers           = {};
+        this.actions            = {};
     }
     createReducer(name, reducer) {
         name = transformReducerName(name);
         if(name in this.reducers)           throw `Reducer named '${name}' already exists.`;
         if(typeof reducer != 'function')    throw `Reducer '${name}' is not a function.`
         this.reducers[name] = reducer;
+    }
+    addCombinedReducer(type, name, reducer, defaultValue) {
+        this.combinedReducers.push({ type: transformReducerName(type), name, reducer, defaultValue });
     }
     createAction(name, action = data => Object.assign({}, data)) {
         if(name in this.actions)            throw `Action named '${name}' already exists.`;
@@ -38,8 +42,17 @@ class ActionReducers {
         return this.runReducer.bind(this)
     }
     runReducer(state, action) {
-        if(!(action.type in this.reducers)) return state;
         let draft = clone(state);
+        if(draft == null && this.combinedReducers.length > 0)
+            draft = {};
+        for(let comb of this.combinedReducers) {
+            if(action.type == comb.type) {
+                draft[comb.name] = comb.reducer(action);
+            } else {
+                draft[comb.name] = draft[comb.name] == null ? comb.defaultValue : draft[comb.name];
+            }
+        }
+        if(!(action.type in this.reducers)) return draft;
         let ret = this.reducers[action.type](draft, action);
         if(ret == null) return draft;
         return ret
