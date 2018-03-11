@@ -49,7 +49,11 @@ class ActionReducers {
             if(action.type == comb.type) {
                 draft[comb.name] = comb.reducer(action);
             } else {
-                draft[comb.name] = draft[comb.name] == null ? comb.defaultValue : draft[comb.name];
+                draft[comb.name] = draft[comb.name] == null
+                    ? typeof comb.defaultValue == 'function'
+                        ? comb.defaultValue(draft[comb.name])
+                        : comb.defaultValue
+                    : draft[comb.name];
             }
         }
         if(!(action.type in this.reducers)) return draft;
