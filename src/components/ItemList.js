@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { itemsFetchData } from '../actions/items';
 
 class ItemList extends Component {
     componentDidMount() {
@@ -28,14 +27,8 @@ class ItemList extends Component {
     }
 }
 
-ItemList.propTypes = {
-    fetchData: PropTypes.func.isRequired,
-    items: PropTypes.array.isRequired,
-    hasErrored: PropTypes.bool.isRequired,
-    isLoading: PropTypes.bool.isRequired
-};
-
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
+    console.log(state);
     return {
         items: state.items,
         hasErrored: state.itemsHasErrored,
@@ -43,9 +36,9 @@ const mapStateToProps = (state) => {
     };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = dispatch => {
     return {
-        fetchData: (url) => dispatch(itemsFetchData(url))
+        fetchData: (url) => dispatch('itemsFetchData', url)
     };
 };
 

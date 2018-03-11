@@ -1,6 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
-import thunk          from 'redux-thunk';
-import actionReducers from '../../lib/action_reducers';
+import actionReducer  from '../lib/action_reducer';
 import initializer    from '../action_reducers';
 
 export default function configureStore(initialState) {
@@ -9,8 +8,7 @@ export default function configureStore(initialState) {
         reducer,
         initialState,
         applyMiddleware(
-            middleware,
-            thunk
+            middleware
         )
     );
 }

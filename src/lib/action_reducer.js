@@ -1,13 +1,19 @@
 export default function(...addActionReducers) {
-    let ar = new ActionReducers();
+    const ar = new ActionReducers();
     for(let func of addActionReducers) func(ar);
+    const dispatcher = next => async (name, ...data) => {
+        let response;
+        if(name in ar.actions) {
+            response = await ar.actions[name](...data);
+            if(typeof response == 'function')
+                response = await response( dispatcher(next) );
+        } else {
+            response = name;
+        }
+        if(response != null) next(response)
+    };
     return {
-        middleware: () => next => (name, ...data) => {
-            if(!(name in ar.actions)) throw `Action '${name}' not found.`;
-            let resp = ar.actions[name](...data);
-            if(typeof resp == null) return;
-            return next(resp)
-        },
+        middleware: () => dispatcher,
         reducer: ar.reducer
     }
 }
@@ -41,7 +47,11 @@ class ActionReducers {
 }
 
 function wrapAction(name, func) {
-    return (...data) => Object.assign({}, {type: transformReducerName(name)}, func(...data))
+    return (...data) => {
+        let ret = func(...data);
+        if(typeof ret == 'object') return Object.assign({}, {type: transformReducerName(name)}, ret)
+        return ret
+    }
 }
 
 function clone(obj){
