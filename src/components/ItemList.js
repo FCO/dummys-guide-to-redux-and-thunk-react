@@ -17,7 +17,7 @@ class ItemList extends Component {
 
         return (
             <ul>
-                {this.props.items.map((item) => (
+                {this.props.items.map(item => (
                     <li key={item.id}>
                         {item.label}
                     </li>
@@ -28,7 +28,6 @@ class ItemList extends Component {
 }
 
 const mapStateToProps = (state = {}) => {
-    console.log("state", state);
     return {
         items:      state.items,
         hasErrored: state.hasErrored,
