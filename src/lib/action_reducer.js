@@ -1,23 +1,3 @@
-export default function(...addActionReducers) {
-    const ar = new ActionReducers();
-    for(let func of addActionReducers) func(ar);
-    const dispatcher = next => async (name, ...data) => {
-        let response;
-        if(name in ar.actions) {
-            response = await ar.actions[name](...data);
-            if(typeof response == 'function')
-                response = await response( dispatcher(next) );
-        } else {
-            response = name;
-        }
-        if(response != null) next(response)
-    };
-    return {
-        middleware: () => dispatcher,
-        reducer: ar.reducer
-    }
-}
-
 class ActionReducers {
     constructor() {
         this.combinedReducers   = [];
@@ -36,7 +16,7 @@ class ActionReducers {
     createAction(name, action = data => Object.assign({}, data)) {
         if(name in this.actions)            throw `Action named '${name}' already exists.`;
         if(typeof action  != 'function')    throw `Action '${name}' is not a function.`
-        this.actions[name] = wrapAction(name, action);
+        this.actions[name] = action;
     }
     get reducer() {
         return this.runReducer.bind(this)
@@ -63,11 +43,33 @@ class ActionReducers {
     }
 }
 
-function wrapAction(name, func) {
-    return (...data) => {
-        let ret = func(...data);
-        if(typeof ret == 'object') return Object.assign({}, {type: transformReducerName(name)}, ret)
-        return ret
+const ar = new ActionReducers();
+
+const dispatcher = next => async (name, ...data) => {
+    let response;
+    if(name in ar.actions) {
+        response = await treatResponse(next, name, await ar.actions[name](...data));
+    } else {
+        response = name;
+    }
+    if(response != null) next(response)
+};
+
+const treatResponse = async (next, name, response) => {
+    if(typeof response == 'function') {
+        return await treatResponse(next, name, response( dispatcher(next) ));
+    } else if(typeof response == 'object' && response.constructor == Promise) {
+        return await treatResponse(next, name, await response);
+    } else {
+        return Object.assign({}, {type: transformReducerName(name)}, response)
+    }
+}
+
+export default function(...addActionReducers) {
+    for(let func of addActionReducers) func(ar);
+    return {
+        middleware: () => dispatcher,
+        reducer: ar.reducer
     }
 }
 
